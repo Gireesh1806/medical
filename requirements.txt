@@ -47,7 +47,7 @@ simple-websocket==1.1.0
 six==1.16.0
 SQLAlchemy==2.0.36
 threadpoolctl==3.5.0
-typing-extensions==4.5.0       # Compatible version for both SQLAlchemy and tensorflow
+typing-extensions==4.5.0      
 tzdata==2024.2
 urllib3==2.2.3
 Werkzeug==3.1.1
