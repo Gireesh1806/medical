@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, SubmitField
 from wtforms.validators import DataRequired
+import app
 
 
 
@@ -188,10 +189,18 @@ def predict_emotion():
     if concatenated_result=="":
             return render_template('predicted_emotion.html', emotion="give assessment first")
     
-    new_text_cleaned = [clean_text(concatenated_result)]
-    new_text_tfidf = loaded_vectorizer.transform(new_text_cleaned)
+    from transformers import pipeline
+    classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", return_all_scores=True)
 
-    predicted_emotion = loaded_model.predict(new_text_tfidf)
+    def get_top_emotion(text):
+        results = classifier(text)
+    # Extract labels and scores
+        labels = [result['label'] for result in results[0]]
+        scores = [result['score'] for result in results[0]]
+        max_index = scores.index(max(scores))
+        return labels[max_index]
+    text = concatenated_result
+    predicted_emotion = get_top_emotion(text)
 
     # Render result in a template or return as a response
     user_id = current_user.id  # Assumes user is logged in and current_user is accessible
@@ -241,9 +250,7 @@ def upload_video():
         return redirect(url_for('main.upload_video'))
     return render_template('upload_video.html')
 
-if __name__ == '__main__':
-    db.create_all()
-    app.run(debug=True)
+
 
 @main.route("/educational_resources")
 @login_required
